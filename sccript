@@ -1,0 +1,57 @@
+function extractIPs(inputString) {
+	const ipPattern = /(\d{1,3}\.){3}\d{1,3}/g;
+	let ipMatches = inputString.match(ipPattern);
+
+	inputString = inputString
+		.replace(/[^0-9.-]/g, ' ')
+		.replace(/ {2,}/g, " ")
+		.replace(" - ", "-")
+		.trim()
+		.split(" ")
+	return allIPs(inputString)
+}
+
+function allIPs(ipsArray) {
+	ips = []
+	ipsArray.forEach(element => {
+		if (element.includes('-')) {
+			const [startIP, endIP] = element.split('-');
+			ips.push(...getAllIPsInRange(startIP, endIP));
+		}
+		else {
+			ips.push(element)
+		}
+	});
+	return ips
+}
+
+function getAllIPsInRange(startIP, endIP) {
+	const start = ipToNumber(startIP);
+	const end = ipToNumber(endIP);
+	const ips = [];
+
+	for (let i = start; i <= end; i++) {
+		ips.push(numberToIp(i));
+	}
+
+	return ips;
+}
+
+function ipToNumber(ip) {
+	return ip.split('.').reduce((acc, octet) => (acc << 8) + parseInt(octet, 10), 0);
+}
+
+function numberToIp(number) {
+	return [
+		(number >> 24) & 255,
+		(number >> 16) & 255,
+		(number >> 8) & 255,
+		number & 255
+	].join('.');
+}
+
+
+// Пример использования:
+const input = "&192.168.0.1 - 192.168.0.2 10.0.0.1fsdf192.168.255.128s;ldfk   10.8.12.250-10.8.13.3";
+const foundIPs = extractIPs(input);
+console.log(foundIPs);
